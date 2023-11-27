@@ -119,7 +119,7 @@ async def handler(websocket: websockets.WebSocketCommonProtocol, path):
         logging.debug(f"Clients seeking connections: {Client.single_clients}")
         try:
             async for message in websocket:
-                if message.isdigit():
+                if message.lstrip("-").isdigit():
                     code = int(message)
 
                     match code:
