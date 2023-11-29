@@ -1,7 +1,7 @@
 {
-  "INVALID": "-1",
-  "WAITING": "0",
-  "ROCK": "1",
-  "PAPER": "2",
-  "SCISSORS": "3"
+  "INVALID": -1,
+  "WAITING": 0,
+  "ROCK": 1,
+  "PAPER": 2,
+  "SCISSORS": 3
 }

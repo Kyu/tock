@@ -9,6 +9,7 @@ if ('mediaDevices' in navigator && 'getUserMedia' in navigator.mediaDevices) {
 
 
 const socket = new WebSocket("ws://localhost:6789");
+let socketReady = false;
 
 const demosSection = document.getElementById("demos");
 let gestureRecognizer;
@@ -126,16 +127,15 @@ async function predictWebcam() {
     // gestureOutput.innerText = `GestureRecognizer: ${categoryName}\n Confidence: ${categoryScore} %\n Handedness: ${handedness}`;
     if (categoryName === "Closed_Fist") {
       rps.setAttribute("class", "fa-solid fa-hand-back-fist");
-      socket.send("1")
+      socketReady && socket.send("1")
     } else if (categoryName === "Open_Palm") {
       rps.setAttribute("class", "fa-solid fa-hand");
-      socket.send("2")
+      socketReady && socket.send("2")
     } else if (categoryName === "Victory") {
       rps.setAttribute("class", "fa-solid fa-hand-scissors");
-      socket.send("3")
+      socketReady && socket.send("3")
     } else {
       rps.setAttribute("class", "fa-solid fa-eye");
-      socket.send("-1")
     }
   } else {
     rps.setAttribute("class", "fa-solid fa-eye");
@@ -249,10 +249,15 @@ getCameraSelection();
 
 socket.addEventListener("open", (event) => {
   console.log("Socket open!")
+  socketReady = true;
 });
 
-socket.addEventListener("message", (event) => {
-  console.log("Message from server ", event.data);
+const output_list = document.getElementById("msg_output");
+
+function socketMessageEvent(event) {
+  let li = document.createElement("li");
+  li.appendChild(document.createTextNode(event.data.toString()));
+  output_list.appendChild(li);
 
   switch (event.data.name) {
     case "new_partner":
@@ -262,7 +267,9 @@ socket.addEventListener("message", (event) => {
     case "game_end":
       break;
     default:
-      break
+      break;
   }
-});
+}
+
+socket.addEventListener("message", socketMessageEvent);
 

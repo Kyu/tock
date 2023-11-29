@@ -1,7 +1,7 @@
 import enum
 import json
 
-with open('../common/enums/game_end_type.json') as p:
+with open('../common/enums/game_play_type.json') as p:
     GamePlayType = enum.Enum('GamePlayType', json.loads(p.read()))
 
 

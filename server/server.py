@@ -67,6 +67,9 @@ class Client:
     async def send_websocket(self, message):
         await self.connection.send(message)
 
+    async def set_current_play(self, play: GamePlayType):
+        self.current_play = play
+
     async def seeking_partner(self):
         async with lock:
             if self.single_clients:
@@ -103,6 +106,7 @@ class Client:
             return
 
         self.partner = None
+        await self.set_current_play(None)
 
         if cascade:
             await old_partner.remove_partner(False)
@@ -124,13 +128,13 @@ async def handler(websocket: websockets.WebSocketCommonProtocol, path):
 
                     match code:
                         case GamePlayType.ROCK.value:
-                            new_cli.current_play = GamePlayType.ROCK
+                            await new_cli.set_current_play(GamePlayType.ROCK)
                         case GamePlayType.PAPER.value:
-                            new_cli.current_play = GamePlayType.PAPER
+                            await new_cli.set_current_play(GamePlayType.PAPER)
                         case GamePlayType.SCISSORS.value:
-                            new_cli.current_play = GamePlayType.SCISSORS
+                            await new_cli.set_current_play(GamePlayType.SCISSORS)
                         case _:
-                            new_cli.current_play = None
+                            await new_cli.set_current_play(None)
 
                     if new_cli.partner is not None:
                         if new_cli.partner.current_play is not None and new_cli.current_play is not None:
@@ -161,7 +165,7 @@ async def handler(websocket: websockets.WebSocketCommonProtocol, path):
                     else:
                         logging.debug(f"Err: {message}")
         except Exception as e:
-            logging.error(f"Exception: {e}")
+            logging.error("Error handling websocket message", exc_info=e)
 
     logging.info("Closing!")
 
